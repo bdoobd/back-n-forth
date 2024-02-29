@@ -1,5 +1,6 @@
 from src.access import Access
 import config.config as config
+import requests
 
 
 class Coin:
@@ -20,16 +21,38 @@ class Coin:
         return self._coin_list
 
     def set_coin(self, coin: str) -> None:
-        self._coin = coin
+        self._base = coin.upper()
+        self._coin = self._base + config.TRADE_PAIR
 
     def get_coin(self) -> str:
         return self._coin
 
+    def get_base(self) -> str:
+        return self._base
+
     def check_asset_exist(self, name: str) -> bool:
-        if name.upper() in self.coin_list:
+        asset = name.upper() + config.TRADE_PAIR
+        if asset in self.coin_list:
             return True
 
         return False
 
     def get_coin_info(self, coin: str) -> dict:
         return self._client.get_symbol_info(coin)
+
+    @staticmethod
+    def get_current_price(coin: str) -> float:
+        url = config.BASE_URL + '/api/v3/ticker/price'
+
+        headers = {
+            'X-MBX-APIKEY': Access.get_api_key()
+        }
+
+        params = {
+            'symbol': coin
+        }
+
+        response = requests.get(url, params=params, headers=headers)
+        data = response.json()
+
+        return float(data['price'])

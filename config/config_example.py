@@ -18,6 +18,9 @@ secret_key_test = 'secret_key'
 # Интересующая торговая пара
 TRADE_PAIR = 'USDT'
 
+# Базовый URL Binance
+BASE_URL = 'https://api.binance.com'
+
 # Сумма вклада для торговли
 TRADE_AMOUNT = 15
 
