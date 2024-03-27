@@ -3,3 +3,5 @@ __pycache__/
 */__pycache__/
 jupyter_*
 *.ipynb
+.ipynb*
+logs/*
