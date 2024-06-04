@@ -2,6 +2,7 @@ from src.access import Access
 import config.config as config
 import pandas as pd
 import requests
+import sys
 
 
 class Coin:
@@ -104,19 +105,30 @@ class Coin:
 
         if self.get_current_price(self._coin) < min_level:
             raise ValueError(
-                f'Текущая стоимость акитва менее 25% {config.KLINE_DAYS} дневного периода')
+                f'\nТекущая стоимость акитва менее 25% {config.KLINE_DAYS} дневного периода')
 
         if self.get_current_price(self._coin) > max_level:
             raise ValueError(
-                f'Текущая стоимость актива выше 25% {config.KLINE_DAYS} дневного периода')
+                f'\nТекущая стоимость актива выше 25% {config.KLINE_DAYS} дневного периода')
 
         return True
 
     def get_average_price(self):
         return self._client.get_avg_price(symbol=self._coin)['price']
 
+    def strip_quote(self, coin: str) -> str:
+        return coin.replace(config.TRADE_PAIR, '')
+
     @staticmethod
     def get_current_price(coin: str) -> float:
+        """ Получает текущую стоимость активая по его названию
+
+        Args:
+            coin (str): Название актива
+
+        Returns:
+            float: Стоимость актива
+        """
         url = config.BASE_URL + '/api/v3/ticker/price'
 
         headers = {
@@ -131,3 +143,41 @@ class Coin:
         data = response.json()
 
         return float(data['price'])
+
+    def ask_coin(self) -> str:
+        """Запрашивает у пользователя название базового актива.
+        Устанавливает свойство актива согласно выбраному пользователем.
+        При указании не существующего актива повторяет запрос.
+        Прерывает выполнение метода по Ctrl + C
+
+        Returns:
+            str: Название базового актива
+        """
+        while True:
+            try:
+                asset_base = input('Укажи базовый актив для работы: ')
+                if self.check_asset_exist(asset_base):
+                    self.register_coin(asset_base)
+                    break
+                else:
+                    print('Выбран не существующий актив, попробуй ещё раз')
+            except KeyboardInterrupt:
+                print('\n\nСкрипт закончил работу ...')
+                sys.exit()
+        print(
+            f'Продолжаем выполнение скрипта с парой {self.get_coin(): >20}\n')
+
+        return self.get_base()
+
+    def check_coin_level(self) -> bool:
+        try:
+            self.check_price_level()
+        except ValueError as e:
+            print(e)
+            confirm_level = input('Хочешь продолжить? Y/N: ')
+            if not confirm_level.upper() == 'Y':
+                print(
+                    f'Актив {self.get_base()} не подошёл для работы, завершаем работу скрипта ...\n')
+                sys.exit()
+
+        return True

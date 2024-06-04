@@ -1,26 +1,19 @@
 from src.access import Access
+from src.coin import Coin
 import config.config as config
 
 
 class Wallet:
 
-    def __init__(self) -> None:
+    def __init__(self, coin: Coin) -> None:
         self._client = Access.client()
-        # FIXME: Эта информация достаточно динамична, нет смысла получать её при создании класса. Суммы в кошельке меняются при каждой покупке/продаже.
-        # Вывести в отдельный метод, может даже статический
-        # self._account_info = self._account_information()
+        self.coin = coin
 
-    # def _account_information(self) -> dict:
-    #     return self._client.get_account()
-
-    # def get_all_balances(self) -> list:
-    #     return self._account_info['balances']
-
-    def get_balance(self, coin: str):
+    def get_balance(self):
         all_balances = self._client.get_account()['balances']
 
         for asset in all_balances:
-            if asset['asset'] == coin:
+            if asset['asset'] == self.coin.get_base():
                 return asset
 
     def check_balance(self, asset: str, order_price: float) -> bool:
@@ -29,15 +22,12 @@ class Wallet:
 
         return True
 
-    # def quote_balance_info(self):
-    #     balance = self.get_balance(config.TRADE_PAIR)
+    def check_available_balance(self, total_price: float) -> bool | None:
+        if total_price > self.get_asset_balance(config.TRADE_PAIR):
+            raise ValueError(
+                f'Требуемое для покупки{config.TRADE_PAIR} {total_price} количество актива больше имеющегося на балансе {self.get_asset_balance(config.TRADE_PAIR)}')
 
-    #     asset_balance_free = float(balance['free'])
-    #     asset_balance_locked = float(balance['locked'])
-
-    #     return f'\nБаланс актива {config.TRADE_PAIR} в кошельке:\n'\
-    #         f'{"": >10}Свободно: {asset_balance_free: >17}\n'\
-    #         f'{"": >10}Зарезервировано: {asset_balance_locked: >10}\n'
+        return True
 
     # NOTE: Тестовый метод
     @staticmethod
@@ -48,3 +38,11 @@ class Wallet:
                 return float(item['free'])
 
         return False
+
+    #########################################################################
+    # DISPLAY INFO
+    #########################################################################
+
+    def display_trade_balances(self) -> str:
+        return f'Баланс базового актива {self.coin.get_base()}: {Wallet.get_asset_balance(coin=self.coin.get_base()):>21}\n'\
+            f'Баланс квотируемого актива {config.TRADE_PAIR}: {Wallet.get_asset_balance(coin=config.TRADE_PAIR):>16}\n'

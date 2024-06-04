@@ -7,7 +7,7 @@ import json
 
 
 class Trade_Log:
-    def __init__(self, order) -> None:
+    def __init__(self, order={}) -> None:
         self.log_dir = self.check_log_dir(Path('logs'))
         self.receipt = order
         self.symbol = self.set_symbol()
@@ -57,3 +57,63 @@ class Trade_Log:
             # TODO: Надо ли снять баланс в кошельке до и после продажи/покупки
             file.write(json.dumps(self.receipt, indent=4))
             file.write(self.get_balance_string(base_asset))
+
+    def create_logfile_sell(self, base_asset: str) -> None:
+        with open(self.log_file, 'w', encoding='UTF-8') as file:
+            file.write(self.create_header())
+            # TODO: Надо ли снять баланс в кошельке до и после продажи/покупки
+            file.write(json.dumps(self.receipt, indent=4))
+            file.write(self.get_balance_string(base_asset))
+
+    def write_market_order(self, name: str) -> None:
+        log_file = self.log_dir / name
+        data = {}
+
+        data['symbol'] = self.receipt['symbol']
+        data['id'] = self.receipt['orderId']
+
+        fills = self.receipt['fills']
+        data['price'] = []
+        data['quantity'] = []
+
+        if len(fills) > 1:
+            for item in fills:
+                data['price'].append(item['price'])
+                data['quantity'].append(item['qty'])
+        else:
+            data['price'].append(fills[0]['price'])
+            data['quantity'].append(fills[0]['qty'])
+
+        try:
+            with open(log_file, 'w') as file:
+                file.write(json.dumps(data, indent=4))
+        except Exception as e:
+            print('Ошибка записи лог файла')
+            print(e)
+        # else:
+        #     return data
+
+    def write_limit_order(self, name: str) -> None:
+        log_file = self.log_dir / name
+        data = {}
+
+        data['symbol'] = self.receipt['symbol']
+        data['id'] = self.receipt['orderId']
+        data['price'] = self.receipt['price']
+        data['quantity'] = self.receipt['origQty']
+
+        try:
+            with open(log_file, 'w') as file:
+                file.write(json.dumps(data, indent=4))
+        except Exception as e:
+            print('Ошибка записи лог файла')
+            print(e)
+
+    def write_ids(self, ids: dict) -> None:
+        log_file = self.log_dir / 'ids.json'
+        try:
+            with open(log_file, 'w') as file:
+                json.dump(ids, file)
+        except Exception as e:
+            print('Не удалось записать идентификаторы в файл')
+            print(e)

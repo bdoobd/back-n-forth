@@ -13,9 +13,8 @@ class Filter:
     def _filters(self) -> list:
         return self.coin_info['filters']
 
-    # # FIXME: После вытаскивания всех фильтров удалить этот метод
-    # def get_filters(self) -> list:
-    #     return self._filters
+    def get_filters(self) -> list:
+        return self._filters
 
     def price_filter(self):
         for filter in self._filters:
