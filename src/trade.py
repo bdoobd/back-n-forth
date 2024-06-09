@@ -104,3 +104,8 @@ class Trade:
             f'Количество для покупки {self.base_asset}: {self.base_volume: >22}\n'\
             f'Стоимость актива для покупки: {base_price: >20}\n'\
             f'Обшие затраты на базовую закупку {config.TRADE_PAIR}: {self.base_volume * base_price: >11}\n'
+
+    def show_working_asset(self) -> str:
+        return f'================================================\n'\
+            f'Работаем с массивом ордеров для актива {self.asset}\n'\
+            f'================================================\n'

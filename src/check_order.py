@@ -1,11 +1,13 @@
 from pathlib import Path
 from src.trade_log import Trade_Log
+from src.access import Access
 import json
 import time
 
 
 class Check_Order:
     def __init__(self, log_file: str) -> None:
+        self._client = Access.client()
         self._log_dir = Trade_Log().log_dir
         self._log_file = self._log_dir / log_file
 
@@ -47,3 +49,15 @@ class Check_Order:
             return True
 
         return False
+
+    def asset_all_orders(self, symbol) -> list:
+        orders = self._client.get_open_orders(symbol=symbol)
+
+        return orders
+
+    def number_of_orders(self, symbol) -> int | None:
+        num = len(self.asset_all_orders(symbol))
+        if num < 1:
+            raise ValueError('Не возможно получить открытые ордера')
+
+        return num

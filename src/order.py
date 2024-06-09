@@ -207,8 +207,10 @@ class Order:
                 amount=qty, price=order_price)
 
             if test:
-                print(
-                    f'Выставить ордер на продажу {qty} {self.symbol} по цене {order_price}\n')
+                # print(
+                #     f'Выставить ордер на продажу {qty} {self.symbol} по цене {order_price}\n')
+                reorder = self.create_limit_sell_order(
+                    amount=qty, price=order_price)
         else:
             order_price = price * \
                 ((100 - float(config.MESH_THRESHOLD)) / 100)
@@ -221,8 +223,10 @@ class Order:
             if test:
                 print(
                     f'Выставить ордер на покупку {qty} {self.symbol} по цене {order_price}\n')
+                reorder = self.create_limit_buy_order(
+                    amount=qty, price=order_price)
 
-        return [side, order_price]
+        return reorder['orderId']
 
     def place_mesh_orders(self, buys: dict, sells: dict) -> list:
         """ Создаёт ордера покупки и продажи согласно сетке
@@ -258,7 +262,16 @@ class Order:
         return ids
 
     @staticmethod
-    def ask_order(symbol: str, id: int):
+    def ask_order(symbol: str, id: int) -> list | None:
+        """ Возвращает детальные данные ордера по ID и имени актива
+
+        Args:
+            symbol (str): Название торговой пары
+            id (int): Идентификатор ордера
+
+        Returns:
+            list | None: JSON данные о ордере
+        """
         try:
             data = Access.client().get_order(symbol=symbol, orderId=id)
         except Exception:
@@ -267,7 +280,15 @@ class Order:
             return data
 
     @staticmethod
-    def get_precision(number: float):
+    def get_precision(number: float) -> int:
+        """ Возвращает число знаков после запятой до значащей позиции
+
+        Args:
+            number (float): Дробное число
+
+        Returns:
+            int: Количество знаков после запятой или ноль, если таких нет.
+        """
         number = str(number).rstrip('0')
         index = str(number)[::-1].find('.')
 
