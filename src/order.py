@@ -190,7 +190,7 @@ class Order:
         return fills[0]['price']
 
     def create_relative_order(self, order, filters) -> None:
-        # TODO: Метод для создания ордера взамен отработавшего
+        # FIXME: Получить текущцю стоимость актива и сравнить её с выставляемой в ордере
         side = self._client.SIDE_BUY if order['side'] == 'SELL' else self._client.SIDE_SELL
 
         qty = float(order['executedQty'])
@@ -203,28 +203,28 @@ class Order:
             order_price = round(
                 order_price, self.get_precision(filters.price_filter()['tickSize']))
 
-            test = self.create_test_limit_sell_order(
-                amount=qty, price=order_price)
-
-            if test:
-                # print(
-                #     f'Выставить ордер на продажу {qty} {self.symbol} по цене {order_price}\n')
+            if self.create_test_limit_sell_order(
+                    amount=qty, price=order_price):
                 reorder = self.create_limit_sell_order(
                     amount=qty, price=order_price)
+
+            # if test:
+            #     reorder = self.create_limit_sell_order(
+            #         amount=qty, price=order_price)
         else:
             order_price = price * \
                 ((100 - float(config.MESH_THRESHOLD)) / 100)
             order_price = round(order_price, self.get_precision(
                 filters.price_filter()['tickSize']))
 
-            test = self.create_test_limit_buy_order(
-                amount=qty, price=order_price)
-
-            if test:
-                print(
-                    f'Выставить ордер на покупку {qty} {self.symbol} по цене {order_price}\n')
+            if self.create_test_limit_buy_order(
+                    amount=qty, price=order_price):
                 reorder = self.create_limit_buy_order(
                     amount=qty, price=order_price)
+
+            # if test:
+            #     reorder = self.create_limit_buy_order(
+            #         amount=qty, price=order_price)
 
         return reorder['orderId']
 

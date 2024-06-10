@@ -126,7 +126,7 @@ if __name__ == '__main__':
                     f'Ордер {working_data["side"]} для актива {working_asset} выполнен для {working_data["executedQty"]} шт стоимостью {working_data["price"]}')
                 print(
                     f'Текущая стоимость актива {Coin.get_current_price(asset.get_coin())}')
-
+                # NOTE: Видимо надо проверять текущую стоимость актива перед высталением ордера так как при сбое или выключении скрипта ситуация с активом может кардинально измениться
                 try:
                     reorder = order.create_relative_order(
                         order=order_data, filters=filter)
