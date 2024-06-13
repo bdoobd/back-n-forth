@@ -7,3 +7,4 @@ jupyter_*
 logs/*
 *.drawio
 test*
+tmpdata/

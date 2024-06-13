@@ -8,7 +8,7 @@ import json
 
 class Trade_Log:
     def __init__(self, order={}) -> None:
-        self.log_dir = self.check_log_dir(Path('logs'))
+        self.log_dir = self.check_log_dir(Path('./logs'))
         self.receipt = order
         self.symbol = self.set_symbol()
         try:
@@ -44,7 +44,6 @@ class Trade_Log:
         return f'Дата файла: {datetime.now().strftime("%d.%m.%Y")}\n'\
             f'Название актива: {self.symbol}\n'\
 
-    # FIXME: Эта сторка уже встречается в потоке главного модуля, надо использовать её
 
     @staticmethod
     def get_balance_string(coin: str) -> str:

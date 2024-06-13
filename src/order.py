@@ -1,14 +1,16 @@
 from src.access import Access
 from src.trade_log import Trade_Log
+from src.history import History
 import config.config as config
 
 
 class Order:
 
-    def __init__(self, base: str) -> None:
+    def __init__(self, base: str, history: History) -> None:
         self._client = Access.client()
         self._base = base
         self.symbol = base + config.TRADE_PAIR
+        self.history = history
 
     def create_market_buy_order(self, quantity: float) -> None:
         """ Создание MARKET ордера на покупку определённого объёма актива
@@ -32,6 +34,9 @@ class Order:
             print('Базовая покупка прошла успешно')
             log = Trade_Log(order)
             log.create_logfile_buy(self._base)
+
+            self.history.write_base_order(order)
+
             return order
 
     def create_test_market_buy_order(self, quantity: float) -> bool:
@@ -88,6 +93,9 @@ class Order:
             log = Trade_Log(order)
             # print(order)
             log.create_logfile_buy(self._base)
+
+            self.history.write_limit_order(order)
+
             return order
 
     def create_limit_sell_order(self, amount: float, price: float) -> dict | None:
@@ -119,6 +127,9 @@ class Order:
             log = Trade_Log(order)
             # print(order)
             log.create_logfile_sell(self._base)
+
+            self.history.write_limit_order(order)
+
             return order
 
     def create_test_limit_sell_order(self, amount: float, price: float) -> bool:
@@ -226,7 +237,7 @@ class Order:
             #     reorder = self.create_limit_buy_order(
             #         amount=qty, price=order_price)
 
-        return reorder['orderId']
+        return reorder
 
     def place_mesh_orders(self, buys: dict, sells: dict) -> list:
         """ Создаёт ордера покупки и продажи согласно сетке

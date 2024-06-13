@@ -5,6 +5,7 @@ from src.mesh import Mesh
 from src.order import Order
 from src.trade import Trade
 from src.trade_log import Trade_Log
+from src.history import History
 from src.check_order import Check_Order
 import config.config as config
 import pandas as pd
@@ -16,13 +17,14 @@ from pathlib import Path
 import json
 import time
 
-
 if __name__ == '__main__':
     check = Check_Order('ids.json')
+    history = History()
     asset = Coin()
     if check.no_open_orders():
         asset.ask_coin()
         asset.check_coin_level()
+        history.write_history_header()
 
         filter = Filter(coin=asset.get_coin())
         trade = Trade(coin=asset, filter=filter)
@@ -64,7 +66,7 @@ if __name__ == '__main__':
             print('Сетка не устроила, прерываем работу скрипта...')
             sys.exit()
 
-        order = Order(asset.get_base())
+        order = Order(asset.get_base(), history=history)
 
         try:
             if order.create_test_market_buy_order(trade.get_base_volume()):
@@ -103,7 +105,7 @@ if __name__ == '__main__':
 
         asset.set_coin(working_asset)
         filter = Filter(coin=asset.get_coin())
-        order = Order(asset.get_base())
+        order = Order(asset.get_base(), history=history)
         trade = Trade(coin=asset, filter=filter)
         tmp_ids = {f'{asset.get_base()}': []}
 
@@ -117,30 +119,31 @@ if __name__ == '__main__':
 
         for working_order in working_orders:
             working_data = Order.ask_order(
-                asset.get_coin(), working_order)
+                symbol=asset.get_coin(), id=working_order)
             if check.check_order_filled(working_data):
-                order_data = Order.ask_order(
-                    symbol=asset.get_coin(), id=working_order)
+                history.write_limit_order(order=working_data)
 
                 print(
-                    f'Ордер {working_data["side"]} для актива {working_asset} выполнен для {working_data["executedQty"]} шт стоимостью {working_data["price"]}')
+                    f'Ордер {working_data["side"]} {working_data["orderId"]} для актива {working_asset} выполнен для {working_data["executedQty"]} шт стоимостью {working_data["price"]}')
                 print(
                     f'Текущая стоимость актива {Coin.get_current_price(asset.get_coin())}')
                 # NOTE: Видимо надо проверять текущую стоимость актива перед высталением ордера так как при сбое или выключении скрипта ситуация с активом может кардинально измениться
                 try:
                     reorder = order.create_relative_order(
-                        order=order_data, filters=filter)
+                        order=working_data, filters=filter)
+
+                    # history.write_limit_order(reorder)
                 except Exception as e:
                     print('Не удалось выставить заказ взамен выполненного')
                     print(e)
                 else:
-                    tmp_ids[asset.get_base()].append(reorder)
+                    tmp_ids[asset.get_base()].append(reorder['orderId'])
 
             else:
                 print(
-                    f'Ордер {working_data["side"]} для актива {working_asset} находится в ожидании для {working_data["origQty"]} шт стоимостью {working_data["price"]}')
+                    f'Ордер {working_data["side"]} {working_data["orderId"]} для актива {working_asset} находится в ожидании для {working_data["origQty"]} шт стоимостью {working_data["price"]}')
                 tmp_ids[asset.get_base()].append(working_order)
 
-        ids = tmp_ids
+            ids = tmp_ids
 
         time.sleep(20)
