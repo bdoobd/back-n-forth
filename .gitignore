@@ -8,3 +8,7 @@ logs/*
 *.drawio
 test*
 tmpdata/
+datalogs/
+*.xls
+*.xlsx
+*.png

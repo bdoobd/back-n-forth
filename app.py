@@ -7,20 +7,16 @@ from src.trade import Trade
 from src.trade_log import Trade_Log
 from src.history import History
 from src.check_order import Check_Order
-import config.config as config
-import pandas as pd
-import sys
-from pprint import pprint
 
-from src.access import Access
-from pathlib import Path
-import json
+import sys
 import time
 
 if __name__ == '__main__':
     check = Check_Order('ids.json')
     history = History()
     asset = Coin()
+    log_ids = Trade_Log()
+
     if check.no_open_orders():
         asset.ask_coin()
         asset.check_coin_level()
@@ -88,7 +84,6 @@ if __name__ == '__main__':
         ids = {f'{asset.get_base()}': order.place_mesh_orders(
             mesh.buys, mesh.sells)}
 
-        log_ids = Trade_Log()
         log_ids.write_ids(ids)
     else:
         ids = check.read_log_file()
@@ -127,12 +122,10 @@ if __name__ == '__main__':
                     f'Ордер {working_data["side"]} {working_data["orderId"]} для актива {working_asset} выполнен для {working_data["executedQty"]} шт стоимостью {working_data["price"]}')
                 print(
                     f'Текущая стоимость актива {Coin.get_current_price(asset.get_coin())}')
-                # NOTE: Видимо надо проверять текущую стоимость актива перед высталением ордера так как при сбое или выключении скрипта ситуация с активом может кардинально измениться
                 try:
                     reorder = order.create_relative_order(
                         order=working_data, filters=filter)
 
-                    # history.write_limit_order(reorder)
                 except Exception as e:
                     print('Не удалось выставить заказ взамен выполненного')
                     print(e)
@@ -144,6 +137,7 @@ if __name__ == '__main__':
                     f'Ордер {working_data["side"]} {working_data["orderId"]} для актива {working_asset} находится в ожидании для {working_data["origQty"]} шт стоимостью {working_data["price"]}')
                 tmp_ids[asset.get_base()].append(working_order)
 
-            ids = tmp_ids
+        log_ids.write_ids(tmp_ids)
+        ids = tmp_ids
 
         time.sleep(20)

@@ -74,8 +74,7 @@ class History:
         """
         symbol = order['symbol']
         order_id = order['orderId']
-        # timestamp = order['workingTime']
-        timestamp = order['updateTime'] if order['status'] == 'FILLED' else order['workingTime']
+        timestamp = order['workingTime']
         order_type = order['type']
         order_side = order['side']
         status = order['status']

@@ -200,9 +200,18 @@ class Order:
 
         return fills[0]['price']
 
-    def create_relative_order(self, order, filters) -> None:
-        # FIXME: Получить текущцю стоимость актива и сравнить её с выставляемой в ордере
-        side = self._client.SIDE_BUY if order['side'] == 'SELL' else self._client.SIDE_SELL
+    def create_relative_order(self, order: dict, filters: dict) -> dict:
+        """ Выставляет ордер взамен выполненному, если выполнилась покупка
+            будет выставлена продажа и наоборот
+
+        Args:
+            order (dict): Квиток заказа полученый от биржи
+            filters (dict): Набор фильтров полученый через API биржи
+
+        Returns:
+            dict: Квиток о выставленном ордере.
+        """
+        # side = self._client.SIDE_BUY if order['side'] == 'SELL' else self._client.SIDE_SELL
 
         qty = float(order['executedQty'])
         price = float(order['price'])
@@ -218,10 +227,6 @@ class Order:
                     amount=qty, price=order_price):
                 reorder = self.create_limit_sell_order(
                     amount=qty, price=order_price)
-
-            # if test:
-            #     reorder = self.create_limit_sell_order(
-            #         amount=qty, price=order_price)
         else:
             order_price = price * \
                 ((100 - float(config.MESH_THRESHOLD)) / 100)
@@ -232,10 +237,6 @@ class Order:
                     amount=qty, price=order_price):
                 reorder = self.create_limit_buy_order(
                     amount=qty, price=order_price)
-
-            # if test:
-            #     reorder = self.create_limit_buy_order(
-            #         amount=qty, price=order_price)
 
         return reorder
 
