@@ -58,6 +58,6 @@ class Check_Order:
     def number_of_orders(self, symbol) -> int | None:
         num = len(self.asset_all_orders(symbol))
         if num < 1:
-            raise ValueError('Не возможно получить открытые ордера')
+            raise ValueError('Не возможно получить открытые ордера\n')
 
         return num

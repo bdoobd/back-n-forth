@@ -27,9 +27,9 @@ class Coin:
         cleaned = [coin for coin in filtered if coin not in config.UNWANTED]
         return cleaned
 
-    @property
-    def coin_list(self) -> list:
-        return self._coin_list
+    # @property
+    # def coin_list(self) -> list:
+    #     return self._coin_list
 
     def set_coin(self, coin: str) -> None:
         """Устанавливает название базового актива и торговой пары
@@ -67,22 +67,40 @@ class Coin:
         self.kline_min_max()
 
     def check_asset_exist(self, name: str) -> bool:
+        """ Проверяет находится ли запрашиваемый актив в списке активов
+
+        Args:
+            name (str): Запрашиваемый базовый актив
+
+        Returns:
+            bool: True если актив имеется в сипске, в противном случае False
+        """
         asset = name.upper() + config.TRADE_PAIR
-        if asset in self.coin_list:
+        if asset in self._coin_list:
             return True
 
         return False
 
-    def get_coin_info(self, coin: str) -> dict:
-        return self._client.get_symbol_info(coin)
+    # def get_coin_info(self, coin: str) -> dict:
+    #     return self._client.get_symbol_info(coin)
 
     def get_klines(self) -> list:
+        """ Возвращает список исторических данных для актива с инервалом в один час
+
+        Returns:
+            list: Исторические данные актива
+        """
         data = self._client.get_historical_klines(
             symbol=self._coin, interval=self._client.KLINE_INTERVAL_1HOUR, start_str=config.KLINE_DAYS)
 
         return data
 
     def klines_to_df(self) -> pd.DataFrame:
+        """ Конвертирует исторические данные в формат pandas DataFrame
+
+        Returns:
+            pd.DataFrame: Табличное представление исторических данных
+        """
         data = pd.DataFrame(self.get_klines())
         data = data.iloc[:, :5]
         columns = ['OpenTime', 'Open', 'High', 'Low', 'Close']
@@ -92,6 +110,11 @@ class Coin:
         return data
 
     def get_closes(self) -> pd.Series:
+        """ Получение столбца со стоимостью из таблицы на момент закрытия интервала
+
+        Returns:
+            pd.Series: Список стоимостей
+        """
         return self.klines_to_df()['Close'].astype(float)
 
     def kline_min_max(self) -> None:
@@ -100,24 +123,37 @@ class Coin:
         self._max = float(close.max())
 
     def check_price_level(self) -> bool:
+        """ Проверяет находится ли текущая стоимость актива в средних значениях исторических данных 
+
+        Raises:
+            ValueError: Текушая стоимость менее 25% от максимальной в исторических данных
+            ValueError: Текущая стоимость более 75% от максимальной в исторических данных
+
+        Returns:
+            bool: True если стоимость находится в диапазоне от 25% до 75% исторических данных
+        """
         min_level = self.get_closes().quantile(.25)
         max_level = self.get_closes().quantile(.75)
 
-        if self.get_current_price(self._coin) < min_level:
-            raise ValueError(
-                f'\nТекущая стоимость акитва менее 25% {config.KLINE_DAYS} дневного периода')
+        current_price = self.get_current_price(self._coin)
 
-        if self.get_current_price(self._coin) > max_level:
+        if current_price < min_level:
+            raise ValueError(
+                f'\nТекущая стоимость актива менее 25% {config.KLINE_DAYS} дневного периода'
+                f'\nТекущая стоимость актива {self.get_current_price(coin=self.get_coin())}'
+                f'\nМинимальная стоимость актива {self._min}')
+
+        if current_price > max_level:
             raise ValueError(
                 f'\nТекущая стоимость актива выше 25% {config.KLINE_DAYS} дневного периода')
 
         return True
 
-    def get_average_price(self):
-        return self._client.get_avg_price(symbol=self._coin)['price']
+    # def get_average_price(self):
+    #     return self._client.get_avg_price(symbol=self._coin)['price']
 
-    def strip_quote(self, coin: str) -> str:
-        return coin.replace(config.TRADE_PAIR, '')
+    # def strip_quote(self, coin: str) -> str:
+    #     return coin.replace(config.TRADE_PAIR, '')
 
     @staticmethod
     def get_current_price(coin: str) -> float:
@@ -170,6 +206,11 @@ class Coin:
         return self.get_base()
 
     def check_coin_level(self) -> bool:
+        """ Вывод пользователю о уровне стоимости актива если он находится ниже или выше заданного уровня
+
+        Returns:
+            bool: True если стоимость актива находися в средних значениях
+        """
         try:
             self.check_price_level()
         except ValueError as e:
