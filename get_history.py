@@ -51,12 +51,15 @@ if __name__ == '__main__':
         sys.exit()
 
     data.insert(len(data.columns), 'Row total', data['Qty'] * data['Price'])
-    # print(data)
 
     multi_index = data.groupby(by=['Side', 'Status'])
 
-    sell_filled = handle_group(multi_index, ('SELL', 'FILLED'))
-    buy_filled = handle_group(multi_index, ('BUY', 'FILLED'))
+    try:
+        sell_filled = handle_group(multi_index, ('SELL', 'FILLED'))
+        buy_filled = handle_group(multi_index, ('BUY', 'FILLED'))
+    except KeyError:
+        print('\n***** Ещё нет выполненных LIMIT ордеров *****\n')
+        sys.exit()
 
     print('\nВыполенные ордера на покупку')
     print(buy_filled)

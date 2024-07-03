@@ -145,7 +145,9 @@ class Coin:
 
         if current_price > max_level:
             raise ValueError(
-                f'\nТекущая стоимость актива выше 25% {config.KLINE_DAYS} дневного периода')
+                f'\nТекущая стоимость актива выше 25% {config.KLINE_DAYS} дневного периода'
+                f'\nТекущая стоимость актива {self.get_current_price(coin=self.get_coin())}'
+                f'\nМаксимальная стоимость актива {self._max}')
 
         return True
 

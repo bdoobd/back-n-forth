@@ -36,7 +36,7 @@ class Trade_Log:
         if self.receipt == None:
             raise NameError('Нет данных квитка заказа')
 
-        datetime_str = datetime.now().strftime('%Y-%m-%d**%H_%M_%S')
+        datetime_str = datetime.now().strftime('%Y-%m-%d__%H_%M_%S')
 
         return f'{symbol}_{datetime_str}.log'
 

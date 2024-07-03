@@ -55,8 +55,8 @@ class History:
         if len(order['fills']) > 1:
             qty = price = 0
             for trade in order['fills']:
-                qty += trade['qty']
-                price += trade['price']
+                qty += float(trade['qty'])
+                price += float(trade['price'])
         else:
             qty = order['fills'][0]['qty']
             price = order['fills'][0]['price']
