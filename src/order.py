@@ -196,7 +196,7 @@ class Order:
         if len(fills) > 1:
             for item in fills:
                 tmp.append(item['price'])
-                return tmp.max()
+                return max(tmp)
 
         return fills[0]['price']
 
