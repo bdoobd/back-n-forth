@@ -274,7 +274,7 @@ class Order:
         return ids
 
     @staticmethod
-    def ask_order(symbol: str, id: int) -> list | None:
+    def ask_order(symbol: str, id: int) -> list:
         """ Возвращает детальные данные ордера по ID и имени актива
 
         Args:
@@ -282,12 +282,12 @@ class Order:
             id (int): Идентификатор ордера
 
         Returns:
-            list | None: JSON данные о ордере
+            list: JSON данные о ордере
         """
         try:
             data = Access.client().get_order(symbol=symbol, orderId=id)
-        except Exception:
-            return None
+        except Exception as e:
+            raise Exception(f'Ошибка получения квиток ордера: {e}')
         else:
             return data
 
