@@ -113,13 +113,25 @@ if __name__ == '__main__':
             sys.exit()
 
         for working_order in working_orders:
-            try:
-                working_data = Order.ask_order(
-                    symbol=asset.get_coin(), id=working_order)
-            except Exception as e:
-                print(e)
-            else:
-                print(working_data)
+            tries = 0
+            while True:
+                try:
+                    working_data = Order.ask_order(
+                        symbol=asset.get_coin(), id=working_order)
+                except Exception as e:
+                    print(e)
+                    print('Пытаемся получить квитое ещё раз ....')
+                    tries += 1
+
+                    if tries > 5:
+                        print(
+                            'Не удаётся получить квиток ордера, скрипт прерывате работу')
+                        sys.exit()
+
+                    continue
+                else:
+                    break
+
             if check.check_order_filled(working_data):
                 history.write_limit_order(order=working_data)
 

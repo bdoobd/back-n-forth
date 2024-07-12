@@ -287,9 +287,12 @@ class Order:
         try:
             data = Access.client().get_order(symbol=symbol, orderId=id)
         except Exception as e:
-            raise Exception(f'Ошибка получения квиток ордера: {e}')
-        else:
-            return data
+            raise Exception(f'Ошибка получения квитока ордера: {e}')
+
+        if len(data) < 1:
+            raise ValueError('Нет данных заказа в квитке ордера')
+
+        return data
 
     @staticmethod
     def get_precision(number: float) -> int:
