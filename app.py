@@ -12,10 +12,10 @@ import sys
 import time
 
 if __name__ == '__main__':
-    check = Check_Order('ids.json')
-    history = History()
     asset = Coin()
+    history = History()
     log_ids = Trade_Log()
+    check = Check_Order(log_object=log_ids, log_file='ids.json')
 
     if check.no_open_orders():
         asset.ask_coin()
@@ -73,7 +73,7 @@ if __name__ == '__main__':
             print(e)
             sys.exit()
         else:
-            base_log = Trade_Log(base_receipt)
+            base_log = Trade_Log(order=base_receipt)
             base_log.write_market_order('base_order.json')
 
             base_price = order.get_base_price(base_receipt)

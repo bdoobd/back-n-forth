@@ -33,7 +33,7 @@ class Order:
             print(e)
         else:
             print('Базовая покупка прошла успешно')
-            log = Trade_Log(order)
+            log = Trade_Log(order=order)
             log.create_logfile_buy(self._base)
 
             self.history.write_base_order(order)
@@ -91,7 +91,7 @@ class Order:
         else:
             print(
                 f'Выставлен ордер {order["orderId"]} на покупку {order["origQty"]} {self._base} по цене {order["price"]} ')
-            log = Trade_Log(order)
+            log = Trade_Log(order=order)
             # print(order)
             log.create_logfile_buy(self._base)
 
@@ -125,7 +125,7 @@ class Order:
         else:
             print(
                 f'Выставлен ордер {order["orderId"]} на продажу {order["origQty"]} {self._base} по цене {order["price"]} ')
-            log = Trade_Log(order)
+            log = Trade_Log(order=order)
             # print(order)
             log.create_logfile_sell(self._base)
 

@@ -5,6 +5,7 @@ jupyter_*
 *.ipynb
 .ipynb*
 logs/*
+receipts/*
 *.drawio
 test*
 tmpdata/

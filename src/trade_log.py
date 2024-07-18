@@ -7,8 +7,8 @@ import json
 
 
 class Trade_Log:
-    def __init__(self, order={}) -> None:
-        self.log_dir = self.check_log_dir(Path('./logs'))
+    def __init__(self, log_dir='./receipts', order={}) -> None:
+        self.log_dir = self.check_log_dir(Path(log_dir))
         self.receipt = order
         self.symbol = self.set_symbol()
         try:
@@ -21,7 +21,7 @@ class Trade_Log:
             try:
                 path.mkdir()
             except Exception as e:
-                print('Не могу создать папку для логов\n')
+                print(f'Не могу создать папку для файлов {path}\n')
                 print(e)
 
         return path

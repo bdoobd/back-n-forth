@@ -6,10 +6,10 @@ import time
 
 
 class Check_Order:
-    def __init__(self, log_file: str) -> None:
+    def __init__(self, log_object: Trade_Log, log_file: str) -> None:
         self._client = Access.client()
-        self._log_dir = Trade_Log().log_dir
-        self._log_file = self._log_dir / log_file
+        # self._log_dir = Trade_Log().log_dir
+        self._log_file = log_object.log_dir / log_file
 
     def read_log_file(self):
         with open(self._log_file, 'r') as file:
