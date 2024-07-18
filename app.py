@@ -142,6 +142,8 @@ if __name__ == '__main__':
                 try:
                     reorder = order.create_relative_order(
                         order=working_data, filters=filter)
+                except ValueError as value_err:
+                    print(value_err)
 
                 except Exception as e:
                     print('Не удалось выставить заказ взамен выполненного')

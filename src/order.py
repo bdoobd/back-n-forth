@@ -1,6 +1,7 @@
 from src.access import Access
 from src.trade_log import Trade_Log
 from src.history import History
+from src.wallet import Wallet
 import config.config as config
 
 
@@ -219,7 +220,6 @@ class Order:
         if order['side'] == 'BUY':
             order_price = price * \
                 ((float(config.MESH_THRESHOLD) / 100) + 1)
-
             order_price = round(
                 order_price, self.get_precision(filters.price_filter()['tickSize']))
 
@@ -232,6 +232,12 @@ class Order:
                 ((100 - float(config.MESH_THRESHOLD)) / 100)
             order_price = round(order_price, self.get_precision(
                 filters.price_filter()['tickSize']))
+
+            asset_balance = Wallet.get_asset_balance(coin=config.TRADE_PAIR)
+
+            if order_price > asset_balance:
+                raise ValueError(
+                    f'Не хватает средств для выставления ордера на покупку, баланс актива {asset_balance}')
 
             if self.create_test_limit_buy_order(
                     amount=qty, price=order_price):
