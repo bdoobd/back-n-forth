@@ -40,7 +40,7 @@
 > Для проверки выполенных ордеров и израсходованных/полученых средствах запустить файл `./get_history.py`
 
 - **cd** в папку с проектом
-- для Windows: `python.exe get_history.py`
-- для Linux/MacOS X: `python3 get_history.py`
+- для Windows: `python.exe loss_or_profit.py`
+- для Linux/MacOS X: `python3 loss_or_profit.py`
 
 :moneybag:
