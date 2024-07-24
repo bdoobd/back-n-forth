@@ -97,9 +97,6 @@ def main():
 
     print(
         f'\nДоходность данного замеса: {sell_total - (buy_total + base_total)}\n')
-    # print(sell_data)
-    # print(buy_data)
-    # print(base)
 
 
 if __name__ == '__main__':

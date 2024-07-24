@@ -56,10 +56,12 @@ class History:
             qty = price = 0
             for trade in order['fills']:
                 qty += float(trade['qty'])
-                price += float(trade['price'])
+                aprice += float(trade['price'])
         else:
-            qty = order['fills'][0]['qty']
-            price = order['fills'][0]['price']
+            qty = float(order['fills'][0]['qty'])
+            aprice = float(order['fills'][0]['price'])
+
+        price = qty * aprice
 
         order_string = f'{timestamp},{order_id},{symbol},{order_type},{order_side},{qty},{price},{status}\n'
 
